@@ -7,3 +7,5 @@ uvicorn
 pillow
 jinja2
 scikit-learn
+opencv-python-headless
+numpy
