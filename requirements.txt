@@ -1,8 +1,12 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-numpy<2
-torch==2.1.2+cpu
-torchvision
+---extra-index-url https://download.pytorch.org/whl/cpu
+
 fastapi
 uvicorn
+gunicorn
+
+numpy<2
+torch==2.1.2+cpu
+
+python-multipart
 pillow
-jinja2
+opencv-python-headless
