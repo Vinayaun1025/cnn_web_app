@@ -7,7 +7,8 @@ from src.models.cnn import CarBikeCNN
 # -------------------------------------------------
 # Constants
 # -------------------------------------------------
-MODEL_PATH = "models/best_model.pth"
+MODEL_PATH = "models/best_model_quantized.pth"
+
 
 # Azure App Service = CPU only
 DEVICE = torch.device("cpu")
@@ -27,15 +28,11 @@ transform = transforms.Compose([
 
 # -------------------------------------------------
 # Load model ONCE at startup
-# -------------------------------------------------
 def load_model():
-    model = CarBikeCNN()
-    model.load_state_dict(
-        torch.load(MODEL_PATH, map_location=DEVICE)
-    )
-    model.to(DEVICE)
+    model = torch.load(MODEL_PATH, map_location=DEVICE)
     model.eval()
     return model
+
 
 
 # -------------------------------------------------
