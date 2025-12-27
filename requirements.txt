@@ -1,11 +1,8 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
-
+numpy<2
 torch==2.1.2+cpu
-torchvision==0.16.2+cpu
+torchvision
 fastapi
 uvicorn
 pillow
 jinja2
-scikit-learn
-opencv-python-headless
-numpy
