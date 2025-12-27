@@ -11,5 +11,4 @@ torchvision==0.17.2+cpu
 
 python-multipart==0.0.9
 pillow==10.2.0
-opencv-python-headless==4.8.1.78
-
+opencv-python-headless==4.9.0.80
