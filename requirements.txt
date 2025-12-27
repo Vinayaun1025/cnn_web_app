@@ -10,3 +10,4 @@ torch==2.1.2+cpu
 python-multipart
 pillow
 opencv-python-headless
+jinja2
