@@ -1,6 +1,11 @@
+# Core
 flask
 gunicorn
-torch
-torchvision
 pillow
-numpy<2
+
+# PyTorch CPU (Azure compatible)
+torch==2.1.2+cpu
+torchvision==0.16.2+cpu
+
+# PyTorch CPU wheels
+--extra-index-url https://download.pytorch.org/whl/cpu
