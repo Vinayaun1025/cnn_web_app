@@ -22,7 +22,6 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v5
-  
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -52,18 +51,16 @@ jobs:
 
     steps:
       - name: Download artifact
-      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: app
 
-      # REQUIRED (THIS FIXES YOUR ERROR)
+      # 🔑 REQUIRED (THIS FIXES YOUR ERROR)
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
