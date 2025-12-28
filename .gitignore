@@ -13,7 +13,7 @@ venv/
 .env/
 .env.*
 .venv/
-
+best_model.pth
 
 # -------------------------
 # Data / temp / logs
