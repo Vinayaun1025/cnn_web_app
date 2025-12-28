@@ -2,9 +2,11 @@ import io
 import torch
 from PIL import Image
 from torchvision import transforms
+import os
 
-# -------------------------------------------------
-MODEL_PATH = "models/best_model_quantized.pth"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+MODEL_PATH = os.path.join(BASE_DIR, "models", "best_model_quantized.pth")
+
 DEVICE = torch.device("cpu")
 
 # -------------------------------------------------
