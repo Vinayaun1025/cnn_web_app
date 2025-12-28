@@ -16,9 +16,22 @@ templates = Jinja2Templates(directory="app/templates")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # -------------------------------------------------
-# Load model ONCE (global)
+# Global model (initialized at startup)
 # -------------------------------------------------
-model = load_model()
+model = None
+
+# -------------------------------------------------
+# Startup event (Azure-safe)
+# -------------------------------------------------
+@app.on_event("startup")
+def startup_event():
+    global model
+    try:
+        model = load_model()
+        print("Model loaded successfully")
+    except Exception as e:
+        print("Model load failed:", e)
+        model = None
 
 # -------------------------------------------------
 # Routes
@@ -32,11 +45,13 @@ def home(request: Request):
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
+    if model is None:
+        return {"error": "Model not loaded on server"}
+
     image_bytes = await file.read()
 
     if not image_bytes:
         return {"error": "Empty file uploaded"}
 
     prediction = predict_image_from_bytes(image_bytes, model)
-
     return {"prediction": prediction}
