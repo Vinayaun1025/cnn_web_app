@@ -14,12 +14,6 @@ venv/
 .env.*
 .venv/
 
-# -------------------------
-# PyTorch / ML models
-# -------------------------
-models/*.pth
-models/*.pt
-models/*.onnx
 
 # -------------------------
 # Data / temp / logs
