@@ -1,10 +1,6 @@
 name: Build and deploy FastAPI app to Azure Web App
 
-name: Build and deploy FastAPI app to Azure Web App
-
 env:
-  AZURE_WEBAPP_NAME: cnn-car-bike-app
-  PYTHON_VERSION: "3.10"
   AZURE_WEBAPP_NAME: cnn-car-bike-app
   PYTHON_VERSION: "3.10"
 
@@ -26,8 +22,7 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v5
-      - name: Set up Python
-        uses: actions/setup-python@v5
+  
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
