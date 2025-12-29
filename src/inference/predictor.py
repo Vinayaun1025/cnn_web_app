@@ -1,41 +1,66 @@
+import os
 import io
 import torch
 from PIL import Image
 from torchvision import transforms
-import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-MODEL_PATH = os.path.join(BASE_DIR, "models", "best_model_quantized.pth")
+from src.models.cnn import CarBikeCNN
 
+# -------------------------------------------------
+# Configuration
+# -------------------------------------------------
+MODEL_PATH = os.path.join("models", "best_model_quantized.pth")
 DEVICE = torch.device("cpu")
 
+# -------------------------------------------------
+# Image preprocessing
 # -------------------------------------------------
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5]*3, std=[0.5]*3)
+    transforms.Normalize(
+        mean=[0.5, 0.5, 0.5],
+        std=[0.5, 0.5, 0.5]
+    )
 ])
 
 # -------------------------------------------------
-# Load model ONCE
+# Load model safely (called once)
+# -------------------------------------------------
 def load_model():
-    model = torch.load(MODEL_PATH, map_location=DEVICE)
+    if not os.path.exists(MODEL_PATH):
+        raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
+
+    model = CarBikeCNN()
+    state_dict = torch.load(MODEL_PATH, map_location=DEVICE)
+
+    # Handle quantized vs normal model
+    if isinstance(state_dict, dict):
+        model.load_state_dict(state_dict)
+
+    model.to(DEVICE)
     model.eval()
+
+    print("Model loaded successfully")
     return model
 
 # -------------------------------------------------
-# Predict from BYTES (not path)
+# Predict from image bytes (Flask upload)
+# -------------------------------------------------
 def predict_image_from_bytes(image_bytes: bytes, model) -> str:
-    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    image = transform(image).unsqueeze(0)
+    if model is None:
+        return "Model not loaded"
 
-    with torch.no_grad():
-        output = model(image)
+    try:
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        image = transform(image).unsqueeze(0).to(DEVICE)
 
-        # Ensure tensor
-        if isinstance(output, (list, tuple)):
-            output = output[0]
+        with torch.no_grad():
+            logits = model(image)
+            prob = torch.sigmoid(logits).item()
 
-        prob = torch.sigmoid(output).item()
+        return "Car 🚗" if prob >= 0.5 else "Bike 🏍️"
 
-    return "Car 🚗" if prob >= 0.5 else "Bike 🏍️"
+    except Exception as e:
+        print("Prediction error:", e)
+        return "Prediction failed"
