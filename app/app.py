@@ -17,25 +17,14 @@ app = Flask(
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 # -------------------------------------------------
-# Global model (loaded once)
-# -------------------------------------------------
-model = None
+def load_model():
+    print("Looking for model at:",MODEL_PATH)
+    if not os.path.exists(MODEL_PATH):
+        raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
 
-
-# -------------------------------------------------
-# Load model safely (Azure + Gunicorn friendly)
-# -------------------------------------------------
-@app.before_request
-def load_model_once():
-    global model
-    if model is None:
-        try:
-            model = load_model()
-            print("Model loaded successfully")
-        except Exception:
-            print("Model loading failed")
-            traceback.print_exc()
-            model = None
+    model = torch.load(MODEL_PATH, map_location='cpu')
+    model.eval()
+    return model
 
 
 # -------------------------------------------------

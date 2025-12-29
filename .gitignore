@@ -50,10 +50,3 @@ dist/
 antenv/
 __azure__/
 
-
-# Ignore all models
-models/*
-
-# BUT keep quantized model
-!models/best_model_quantized.pth
-
