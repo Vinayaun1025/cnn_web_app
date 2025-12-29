@@ -47,14 +47,13 @@ def load_model():
 # -------------------------------------------------
 # Predict from image bytes (Flask upload)
 # -------------------------------------------------
-def predict_image_from_bytes(image_bytes:bytes model)--> str:
+def predict_image_from_bytes(image_bytes:bytes, model) -> str:
     try:
-    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    image = transform(image).unsqueeze(0).to(DEVICE)
-
-    with torch.no_grad():
-        logits = model(image)
-        print("Debug logits:", logits)
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        image = transform(image).unsqueeze(0).to(DEVICE)
+        with torch.no_grad():
+            logits = model(image)
+            print("Debug logits:", logits)
         
         
         prob = torch.sigmoid(logits).item() 
