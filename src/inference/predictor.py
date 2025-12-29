@@ -9,7 +9,7 @@ from src.models.cnn import CarBikeCNN
 # -------------------------------------------------
 # Configuration
 # -------------------------------------------------
-MODEL_PATH = os.path.join("models", "best_model_quantized.pth")
+MODEL_PATH = os.path.join("models", "best_model.pth")
 DEVICE = torch.device("cpu")
 
 # -------------------------------------------------
@@ -25,18 +25,15 @@ transform = transforms.Compose([
 ])
 
 # -------------------------------------------------
-# Load model safely (called once)
+# Load model ONCE (safe for Flask/Azure)
 # -------------------------------------------------
 def load_model():
     if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
+        raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
 
     model = CarBikeCNN()
     state_dict = torch.load(MODEL_PATH, map_location=DEVICE)
-
-    # Handle quantized vs normal model
-    if isinstance(state_dict, dict):
-        model.load_state_dict(state_dict)
+    model.load_state_dict(state_dict)
 
     model.to(DEVICE)
     model.eval()
@@ -44,22 +41,38 @@ def load_model():
     print("Model loaded successfully")
     return model
 
+
 # -------------------------------------------------
 # Predict from image bytes (Flask upload)
 # -------------------------------------------------
-def predict_image_from_bytes(image_bytes:bytes, model) -> str:
+def predict_image_from_bytes(image_bytes: bytes, model) -> str:
+    if model is None:
+        return "Model not loaded"
+
     try:
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        # Validate input bytes
+        if image_bytes is None or len(image_bytes) == 0:
+            return "Empty image uploaded"
+
+        # Load image safely
+        image = Image.open(io.BytesIO(image_bytes))
+
+        if image.mode != "RGB":
+            image = image.convert("RGB")
+
         image = transform(image).unsqueeze(0).to(DEVICE)
+
+        # Inference
         with torch.no_grad():
-            logits = model(image)
-            print("Debug logits:", logits)
-        
-        
-        prob = torch.sigmoid(logits).item() 
-        print("Debug prob:", prob)
-        return "car" if prob >= 0.5 else "bike"
+            logits = model(image).view(-1)
+            prob = torch.sigmoid(logits).item()
+
+        # Final decision
+        if prob >= 0.5:
+            return "Car 🚗"
+        else:
+            return "Bike 🏍️"
 
     except Exception as e:
-        print("Error during prediction",str(e))
-        return f"Prediction failed: {str(e)}"
+        print("Prediction error:", str(e))
+        return "Prediction failed"
