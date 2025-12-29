@@ -47,20 +47,20 @@ def load_model():
 # -------------------------------------------------
 # Predict from image bytes (Flask upload)
 # -------------------------------------------------
-def predict_image_from_bytes(image_bytes: bytes, model) -> str:
-    if model is None:
-        return "Model not loaded"
-
+def predict_image_from_bytes(image_bytes:bytes model)--> str:
     try:
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        image = transform(image).unsqueeze(0).to(DEVICE)
+    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    image = transform(image).unsqueeze(0).to(DEVICE)
 
-        with torch.no_grad():
-            logits = model(image)
-            prob = torch.sigmoid(logits).item()
-
-        return "Car 🚗" if prob >= 0.5 else "Bike 🏍️"
+    with torch.no_grad():
+        logits = model(image)
+        print("Debug logits:", logits)
+        
+        
+        prob = torch.sigmoid(logits).item() 
+        print("Debug prob:", prob)
+        return "car" if prob >= 0.5 else "bike"
 
     except Exception as e:
-        print("Prediction error:", e)
-        return "Prediction failed"
+        print("Error during prediction",str(e))
+        return f"Prediction failed: {str(e)}"
